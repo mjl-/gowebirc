@@ -1065,6 +1065,9 @@ func main() {
 	addr := flag.String("http", "localhost:8000", "HTTP service address (e.g., ':8000')")
 	defaultNick = flag.String("nick", "", "Nick to use on IRC servers.  By default the nick \"go<username>\" is used")
 	httpauth0 := flag.String("httpauth", "", "Username and password to require for HTTP basic authentication, in format username:password")
+	ssl := flag.Bool("ssl", false, "Whether to serve HTTPS instead of HTTP.")
+	certFile := flag.String("cert", "cert.pem", "Only used if -ssl is set.")
+	keyFile := flag.String("key", "key.pem", "Only used if -ssl is set.")
 	flag.Parse()
 	if len(flag.Args()) != 0 {
 		flag.Usage()
@@ -1089,6 +1092,11 @@ func main() {
 	ircsc = make(chan Ircs)
 	go srv()
 
-	fmt.Printf("http://%s/\n", *addr)
-	log.Fatal(http.ListenAndServe(*addr, nil))
+	if *ssl {
+		fmt.Printf("https://%s/\n", *addr)
+		log.Fatal(http.ListenAndServeTLS(*addr, *certFile, *keyFile, nil))
+	} else {
+		fmt.Printf("http://%s/\n", *addr)
+		log.Fatal(http.ListenAndServe(*addr, nil))
+	}
 }

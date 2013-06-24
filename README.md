@@ -48,7 +48,6 @@ this is work in progress.  things to do:
 - bug: when we query a user, then write something, we get message about duplicate sessions
 
 - implement highlights, at least for own nick name.
-- ssl support
 - autoreconnect, autojoin
 - send list of users in channels to frontend
 - implement tab completion
