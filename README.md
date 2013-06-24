@@ -45,7 +45,6 @@ this is work in progress.  things to do:
 - after giving new state, more carefully collect events:  not the ones for now-closed windows.
 
 - bug: when another nick renames it isn't propagated with events
-- bug: when we query a user, then write something, we get message about duplicate sessions
 
 - autoreconnect, autojoin
 - send list of users in channels to frontend

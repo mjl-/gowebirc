@@ -441,7 +441,6 @@ func srv() {
 		if !ok {
 			s = &Session{sidNext(), name, true, false, irc.IsChannel(name), c}
 			sessionAdd(s)
-			eventAdd(EventSession{"session", eidNext(), s.sid, name, s.s0sid(), s.isChan})
 		}
 		return s
 	}
