@@ -1,0 +1,470 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>gowebirc</title>
+		<style>
+* { margin:0; padding:0; }
+body {
+	font-family:"verdana", sans-serif;
+	font-size:13px;
+}
+.page {
+	max-width:960px;
+	margin:0 auto;
+}
+.top {
+	position:fixed;
+	top:0.5ex;
+	left:0.5ex;
+	right:0.5ex;
+}
+.talk {
+	position:fixed;
+	top:4ex;
+	bottom:4ex;
+	left:0.5ex;
+	right:0.5ex;
+	overflow-y:scroll;
+}
+.bottom {
+	position:fixed;
+	bottom:0.5ex;
+	right:0.5ex;
+	left:0.5ex;
+}
+
+.touch .session,
+.touch .help {
+	font-size:1.3em;
+	margin:0 0.4em;
+}
+
+.session {
+	padding:0 0.25em;
+	margin:0 0.25em 1ex 0;
+	border:1px dashed #333;
+}
+.session.active {
+	background-color:#3592cc;
+	color:white;
+}
+.session.s0 {
+	border-style:solid;
+}
+
+.line {
+	width:100%;
+	padding:0.1em 0.3em;
+}
+.unread {
+	font-weight:bold;
+	color:#555;
+}
+.time {
+	color:green;
+	margin-right:0.5em;
+}
+.who {
+	color:blue;
+	margin-right:0.5em;
+	min-width:4em;
+	text-align:right;
+}
+.who:after {
+	content: ":";
+}
+.status {
+	color:orange;
+}
+.time, .who, .text {
+	display:inline-block;
+}
+.intransit {
+	color:#666;
+}
+.msg {
+	position:relative;
+}
+.img {
+	max-width:200px;
+	position:absolute;
+	right:0;
+	padding:10px;
+	box-shadow:0 0 4px #444;
+	top:5px;
+	right:1ex;
+}
+.help {
+	display:inline-block;
+	float:right;
+	padding:0.1ex 0.5ex;
+	background-color:#eee;
+	border:1px solid #aaa;
+	color:#444;
+	text-decoration:none;
+}
+		</style>
+	</head>
+	<body>
+		<div class="page">
+			<div class="top x-top">
+				<a href="help.html" class="help" target="_blank">help</a>
+				<div class="sessions x-sessions"></div>
+			</div>
+			<div class="talk x-talk"></div>
+			<div class="bottom x-bottom">
+				<input type="text" class="line x-line" name="line" placeholder="Text and /commands..." autofocus />
+			</div>
+		</div>
+		<script type="text/javascript" src="jquery-2.0.2.min.js"></script>
+<script>
+var log = function(e) {
+	console.log(e);
+};
+
+
+// modernizr, touch events
+/* Modernizr 2.6.2 (Custom Build) | MIT & BSD
+ * Build: http://modernizr.com/download/#-touch-cssclasses-teststyles-prefixes
+ */
+;window.Modernizr=function(a,b,c){function w(a){j.cssText=a}function x(a,b){return w(m.join(a+";")+(b||""))}function y(a,b){return typeof a===b}function z(a,b){return!!~(""+a).indexOf(b)}function A(a,b,d){for(var e in a){var f=b[a[e]];if(f!==c)return d===!1?a[e]:y(f,"function")?f.bind(d||b):f}return!1}var d="2.6.2",e={},f=!0,g=b.documentElement,h="modernizr",i=b.createElement(h),j=i.style,k,l={}.toString,m=" -webkit- -moz- -o- -ms- ".split(" "),n={},o={},p={},q=[],r=q.slice,s,t=function(a,c,d,e){var f,i,j,k,l=b.createElement("div"),m=b.body,n=m||b.createElement("body");if(parseInt(d,10))while(d--)j=b.createElement("div"),j.id=e?e[d]:h+(d+1),l.appendChild(j);return f=["&#173;",'<style id="s',h,'">',a,"</style>"].join(""),l.id=h,(m?l:n).innerHTML+=f,n.appendChild(l),m||(n.style.background="",n.style.overflow="hidden",k=g.style.overflow,g.style.overflow="hidden",g.appendChild(n)),i=c(l,a),m?l.parentNode.removeChild(l):(n.parentNode.removeChild(n),g.style.overflow=k),!!i},u={}.hasOwnProperty,v;!y(u,"undefined")&&!y(u.call,"undefined")?v=function(a,b){return u.call(a,b)}:v=function(a,b){return b in a&&y(a.constructor.prototype[b],"undefined")},Function.prototype.bind||(Function.prototype.bind=function(b){var c=this;if(typeof c!="function")throw new TypeError;var d=r.call(arguments,1),e=function(){if(this instanceof e){var a=function(){};a.prototype=c.prototype;var f=new a,g=c.apply(f,d.concat(r.call(arguments)));return Object(g)===g?g:f}return c.apply(b,d.concat(r.call(arguments)))};return e}),n.touch=function(){var c;return"ontouchstart"in a||a.DocumentTouch&&b instanceof DocumentTouch?c=!0:t(["@media (",m.join("touch-enabled),("),h,")","{#modernizr{top:9px;position:absolute}}"].join(""),function(a){c=a.offsetTop===9}),c};for(var B in n)v(n,B)&&(s=B.toLowerCase(),e[s]=n[B](),q.push((e[s]?"":"no-")+s));return e.addTest=function(a,b){if(typeof a=="object")for(var d in a)v(a,d)&&e.addTest(d,a[d]);else{a=a.toLowerCase();if(e[a]!==c)return e;b=typeof b=="function"?b():b,typeof f!="undefined"&&f&&(g.className+=" "+(b?"":"no-")+a),e[a]=b}return e},w(""),i=k=null,e._version=d,e._prefixes=m,e.testStyles=t,g.className=g.className.replace(/(^|\s)no-js(\s|$)/,"$1$2")+(f?" js "+q.join(" "):""),e}(this,this.document);
+
+var statenew = function() {
+	var s = {sid: 0, name: '(status)', lines: [], nick: 'gowebirc', ischannel: false};
+	s.s0sid = s.sid;
+
+	var b0 = $('<button data-session="0" class="x-session session active s0">0</button>')
+	$('.x-sessions').empty().append(b0);
+
+	return {
+	s:		s,
+	sessions:	{0: s},	// session id -> dict with keys "sid", "name", "lines" (array of event objects)
+	connections:	{},	// session id -> nick, status
+	intransit:	{}	// unique id -> object with "ev" and "msg"
+	}
+};
+var state = statenew();
+
+var postok = function() {
+	log('post ok');
+};
+
+var posterror = function(r) {
+	alert('error writing command');
+	log({error: r});
+};
+
+var timefmt = function(tm) {
+	var d = new Date(0);
+	d.setUTCSeconds(tm);
+	s = '';
+	var h = d.getHours();
+	var m = d.getMinutes();
+	if(h < 10) {
+		s += '0';
+	}
+	s += h+':';
+	if(m < 10) {
+		s += '0';
+	}
+	s += m;
+	return s;
+};
+
+var makemsg = function(d) {
+	var text = function(elem, text) {
+		var l = text.split(/(https?:\/\/[^ \)\>\]\}]*)/);
+		if(l.length == 1) {
+			elem.text(text);
+			return;
+		}
+		var r = [];
+		for(var i = 0; i < l.length; i += 2) {
+			r.push(l[i]);
+			if(i+1 < l.length) {
+				var a = $('<a target="_blank"></a>');
+				a.attr('href', l[i+1]);
+				a.text(l[i+1]);
+				if(/\.(jpg|png|gif)$/i.test(l[i+1])) {
+					var img = new Image();
+					$(img).addClass('img');
+					img.src = l[i+1];
+					a.append(img);
+				}
+				r.push(a);
+			}
+		}
+		elem.append(r);
+	};
+	switch(d.T) {
+	case 'msg':
+		var div = $('<div class="msg"><span class="time"></span><span class="who"></span><span class="text"></span></div>');
+		div.find('.time').text(timefmt(d.Time));
+		div.find('.who').text(d.Who);
+		text(div.find('.text'), d.Text);
+		break;
+	case 'action':
+		var div = $('<div class="msg"><span class="time"></span><span class="action"></span></div>');
+		div.find('.time').text(timefmt(d.Time));
+		text(div.find('.action'), d.Text);
+		break;
+	case 'status':
+		var div = $('<div class="msg"><span class="time"></span><span class="status"></span></div>');
+		div.find('.time').text(timefmt(d.Time));
+		text(div.find('.status'), d.Text);
+		break;
+	default:
+		alert('makemsg on unexpected type '+d.T);
+		return;
+	}
+	if(d.U) {
+		div.addClass('intransit');
+	}
+	return div;
+};
+
+var sessionbuttonmake = function(sid, name, is0) {
+	var b = $('<button class="session x-session"></button>');
+	b.data('session', sid);
+	b.text(name);
+	if(is0) {
+		b.addClass('s0');
+	}
+	return b;
+};
+
+var sessionbuttonfind = function(sid) {
+	return $('.x-session').filter(function(){return parseInt($(this).data('session')) === sid;});
+};
+
+var sessionmark = function(sid) {
+	$('.x-session').removeClass('active');
+	sessionbuttonfind(sid).addClass('active');
+};
+
+var sessionload = function(sid) {
+	var s = state.sessions[sid];
+	if(!s) {
+		alert('cannot load session '+sid);
+		return;
+	}
+	var msgs = [];
+	for(var i = 0; i < s.lines.length; i++) {
+		msgs.push(makemsg(s.lines[i]));
+	}
+
+	$talk.empty().append(msgs);
+	sessionmark(sid);
+	state.s = s;
+	markread(s);
+	scrollbottom();
+};
+
+var scrollbottom = function() {
+	$talk.scrollTop($talk[0].scrollHeight);
+};
+
+var atbottom = function() {
+	// return $talk[0].scrollHeight >= $talk.scrollTop()+$talk.height();
+	return $talk.scrollTop() >= $talk[0].scrollTopMax;
+};
+
+var buttonsettext = function(s) {
+	if(s.s0 === s.sid) {
+		var c = state.connections[s.s0sid];
+		var t = '('+c.nick+' '+s.name+')';
+		if(c.status === 'connecting') {
+			t += '...';
+		} else if(c.status === 'disconnected') {
+			t += ' †';
+		}
+		sessionbuttonfind(s.sid).text(t);
+	}
+};
+
+// mark session as unread
+var markunread = function(s) {
+	var b = sessionbuttonfind(s.sid);
+	b.addClass('unread');
+};
+var markread = function(s) {
+	var b = sessionbuttonfind(s.sid);
+	b.removeClass('unread');
+};
+
+var process = function(e) {
+	var evl = $.parseJSON(e.data);
+	for(var i = 0; i < evl.length; i++) {
+		var d = evl[i];
+		var s = state.sessions[d.Sid];
+		log(JSON.stringify(d));
+		switch(d.T) {
+		case 'msg':
+		case 'action':
+		case 'status':
+			var trans = state.intransit[d.Uu];
+			if(trans) {
+				delete state.intransit[d.Uu];
+			}
+			log({trans: trans, s: s});
+			if(!s) {
+				log({missing: s});
+				continue;
+			}
+			if(s === state.s) {
+				var e = makemsg(d);
+				if(trans) {
+					trans.msg.replaceWith(e);
+					var j = s.lines.indexOf(trans.ev);
+					if(j === undefined) {
+						alert('bad trans.ev?')
+					}
+					s.lines[j] = d;
+				} else {
+					var scroll = atbottom();
+					$talk.append(e);
+					if(scroll) {
+						scrollbottom();
+					}
+					s.lines.push(d);
+				}
+			} else {
+				if(trans) {
+					s.lines.splice(s.lines.indexOf(trans.ev), 1);
+				}
+				s.lines.push(d);
+				markunread(s);
+			}
+			break;
+		case 'clear':
+			state = statenew();
+			sessionload(0);
+			break;
+		case 'con':
+			state.connections[d.Sid] = {status: d.Status, nick: d.Nick, irclagms: d.Irclagms};
+			if(s) {
+				buttonsettext(state.sessions[d.Sid]);
+			}
+			break;
+		case 'session':
+			if(s) {
+				log('dup');
+				alert("new session, but we already know about it?");
+				continue;
+			}
+			var ns = {sid: d.Sid, name: d.Name, lines: [], s0sid: d.S0};
+			state.sessions[d.Sid] = ns;
+			var b = sessionbuttonmake(d.Sid, d.Name, d.S0===d.Sid);
+			if(d.Sid === d.S0) {
+				var g = $('<span class="g x-g"></span>');
+				$('.x-sessions').append(g);
+			} else {
+				var g = sessionbuttonfind(d.S0).closest('.x-g');
+			}
+			g.append(b);
+			buttonsettext(ns);
+			break;
+		case 'sessionname':
+			state.sessions[d.Sid].name = d.Name;
+			buttonsettext(s);
+			break;
+		case 'remove':
+			if(s === state.s) {
+				sessionloadprev();
+			}
+			if(s.sid === s.s0sid) {
+				delete state.connections[s.sid];
+			}
+			delete state.sessions[s.sid];
+			sessionbuttonfind(s.sid).remove();
+			break;
+		case 'users':
+			alert('users msg, not yet');
+			break;
+		default:
+			log('unrecognized message, type: '+d.T);
+		}
+	}
+};
+
+var sessionloadprev = function() {
+	var $bl = $('.x-session');
+	var b = sessionbuttonfind(s.sid);
+	var i = Math.max($bl.index(b)-1, 0);
+	sessionload($($bl[i]).data('session'));
+};
+var sessionloadnext = function() {
+	var $bl = $('.x-session');
+	var b = sessionbuttonfind(s.sid);
+	var i = Math.min($bl.index(b)+1, $bl.length-1);
+	sessionload($($bl[i]).data('session'));
+};
+
+var trackstart = function() {
+	if(!window.EventSource) {
+		alert('your browser does not support eventsources.  bummer.');
+		return;
+	}
+	var source = new EventSource('get');
+	source.addEventListener('message', function(e) {
+		process(e);
+	}, false);
+};
+
+var postgenseq = 1;
+var postgen = function() {
+	postgenseq += 1;
+	return postgenseq;
+};
+
+var now = function() {
+	return Math.floor(new Date().getTime()/1000);
+};
+
+var nick = function() {
+	var s = state.connections[state.s.s0sid]
+	if(s)
+		return s.nick;
+	return 'gowebirc';
+};
+
+$('body').on('keydown', '.x-line', function(e) {
+	if(e.keyCode !== 13) {
+		return;
+	}
+	e.preventDefault();
+	var line = $('.x-line').val();
+	$('.x-line').val('');
+	if(!line) {
+		return;
+	}
+	var u = postgen();
+	if(line[0] === '/') {
+		var ev = {T:'status', Time: now(), Text: line, U: u, Sid: state.s.sid};
+	} else {
+		var ev = {T:'msg', Time: now(), Who: nick(), Text: line, U: u, Sid: state.s.sid};
+	}
+	var msg = makemsg(ev);
+	state.intransit[u] = {ev: ev, msg: msg};
+	state.s.lines.push(ev);
+	var scroll = atbottom();
+	$talk.append(msg);
+	if(scroll) {
+		scrollbottom();
+	}
+	$.post('post', {sid: state.s.sid, line: line, u: u}, postok).error(posterror);
+});
+$('body').on('click', '.x-session', function(e) {
+	var sid = parseInt($(this).data('session'));
+	sessionload(sid);
+});
+
+var $talk;
+$(function() {
+	$talk = $('.x-talk');
+	trackstart();
+})
+</script>
+	</body>
+</html>

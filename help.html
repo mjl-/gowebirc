@@ -1,0 +1,72 @@
+<!doctype html>
+<html>
+	<head>
+		<title>gowebirc usage</title>
+		<style>
+* {margin:0; padding:0}
+html {width:45em; margin:2ex auto}
+body {font-size:14px; font-family:sans-serif; background-color:white; color:#444;}
+h1 { font-size:18px; }
+h2 { font-size:16px; }
+h1, h2 {margin-bottom:1ex; }
+p, dl {margin-bottom:2ex; }
+dt { font-weight:bold; }
+dd { margin-left:4em; margin-bottom:1ex;}
+		</style>
+	</head>
+	<body>
+		<h1>Gowebirc usage</h1>
+		<h2>Introduction</h2>
+		<p>Gowebirc is an irc client with a web frontend.  The go program maintains irc connections to irc servers.  It also serves html and irc updates to the web frontend.  The web frontend is html, javascript/jquery and the updates are delivered through server-sent events (which are supported by most modern browsers, and do not require special connection tricks, they are just long-lived get requests).  See the gowebirc program for usage information.  See below for commands you can execute from the web frontend.</p>
+		<h2>Commands</h2>
+		<p>The following commands can be run from the web frontend, from the input field at the bottom of the screen.</p>
+		<dl>
+			<dt>/connect [addr [nick]]</dt>
+			<dd>Start new irc connection to given addr (of form "host[:port]", default port is 6667).  Your default nick can be overridden with the second parameter.</dd>
+			<dt>/reconnect</dt>
+			<dd>Drop the connection for the current window and redial it.</dd>
+			<dt>/join channel</dt>
+			<dd>Join the "channel", for example "/join #go-nuts".</dd>
+			<dt>/query nick</dt>
+			<dd>Open new window with "nick".</dd>
+			<dt>/disconnect</dt>
+			<dd>Disconnect from the connection for the current window.</dd>
+			<dt>/away message...</dt>
+			<dd>Set a new away message.  If no parameter is given, you are no longer away.</dd>
+			<dt>/nick newnick</dt>
+			<dd>Request for a nick change to "newnick".</dd>
+			<dt>/umode mode</dt>
+			<dd>Change user mode by "mode", e.g. /umode +e.</dd>
+			<dt>/whois nick</dt>
+			<dd>Request information about "nick" from server using whois request.</dd>
+			<dt>/n or /names</dt>
+			<dd>Ask list of nicks in current channel.</dd>
+			<dt>/me message...</dt>
+			<dd>Send an "action" message that is typically shown as "*<yournick> message..."</dd>
+			<dt>/notice message...</dt>
+			<dd>Send a message to current window with the irc "notice" command (by default, messages are sent with the "privmsg" command).</dd>
+			<dt>/msg target message...</dt>
+			<dd>Send message to "target" (a nick or channel).  this is the same as typing a normal message in the window of "target".</dd>
+			<dt>/invite nick channel</dt>
+			<dd>Invite "nick" to join "channel".</dd>
+			<dt>/version or /time or /ping</dt>
+			<dd>Send a version/time/ping ctcp request to the current window.</dd>
+			<dt>/kick nick [message...]</dt>
+			<dd>Kick "nick" from the channel of the current window, with the optional "message" as reason.</dd>
+			<dt>/op nick, /voice nick, /ban nick, /deop nick, /devoice nick, /unban nick</dt>
+			<dd>Give op, voice, ban status to "nick", or the opposite.</dd>
+			<dt>/mode mode...</dt>
+			<dd>Set "mode" for the current window, e.g. /mode +snt.</dd>
+			<dt>/part</dt>
+			<dd>Leave the current channel.</dd>
+			<dt>/close</dt>
+			<dd>Close the current window.</dd>
+			<dt>/closeall</dt>
+			<dd>Close all windows for the current irc connection.</dd>
+			<dt>/topic text...</dt>
+			<dd>Set a new topic for the current channel.</dd>
+		</dl>
+		<h2>Latest version</h2>
+		<p>The latest version of gowebirc can be found at bitbucket, <a href="http://bitbucket.org/mjl/gowebirc/">http://bitbucket.org/mjl/gowebirc/</a>.</p>
+	</body>
+</html>
