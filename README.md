@@ -46,7 +46,6 @@ this is work in progress.  things to do:
 
 - bug: when another nick renames it isn't propagated with events
 - bug: when we query a user, then write something, we get message about duplicate sessions
-- frontend: make shortcut for cycling though sessions
 
 - implement highlights, at least for own nick name.
 - ssl support

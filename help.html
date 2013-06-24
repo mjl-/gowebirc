@@ -16,8 +16,26 @@ dd { margin-left:4em; margin-bottom:1ex;}
 	</head>
 	<body>
 		<h1>Gowebirc usage</h1>
+
 		<h2>Introduction</h2>
 		<p>Gowebirc is an irc client with a web frontend.  The go program maintains irc connections to irc servers.  It also serves html and irc updates to the web frontend.  The web frontend is html, javascript/jquery and the updates are delivered through server-sent events (which are supported by most modern browsers, and do not require special connection tricks, they are just long-lived get requests).  See the gowebirc program for usage information.  See below for commands you can execute from the web frontend.</p>
+
+		<h2>Shortcuts</h2>
+		<p>The following shortcuts are bound on the whole document and can be used anywhere (with focus on any element):</p>
+		<dl>
+			<dt>ctrl + t</dt>
+			<dd>Focus the input line at the bottom.</dd>
+		</dl>
+		<p>The following shortcuts are bound to the input line only:</p>
+		<dl>
+			<dt>ctrl + n</dt>
+			<dd>Make the next session active.  Same effect as clicking on the button right of the active one, or the first if there are no more.</dd>
+			<dt>ctrl + p</dt>
+			<dd>Make the previous session active.</dd>
+			<dt>ctrl + k</dt>
+			<dd>Switch to previous active session.</dd>
+		</dl>
+
 		<h2>Commands</h2>
 		<p>The following commands can be run from the web frontend, from the input field at the bottom of the screen.</p>
 		<dl>
