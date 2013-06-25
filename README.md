@@ -47,8 +47,6 @@ this is work in progress.  things to do:
 - bug: when another nick renames it isn't propagated with events
 
 - autoreconnect, autojoin
-- send list of users in channels to frontend
-- implement tab completion
 - log all talk to log file
 - don't keep all events in memory forever
 - show latency to the webserver and the irc servers.

@@ -92,11 +92,26 @@ type EventSession struct {
 	Name     string
 	S0	 int64
 	IsChan	bool
+	Nicks	[]string
 }
 func (e EventSession) eid() int64 {
 	return e.Eid
 }
 func (e EventSession) isState() bool {
+	return true
+}
+
+type EventSessionNicks struct {
+	T        string
+	Eid, Sid int64
+	DelAll	bool
+	Del	[]string
+	Add	[]string
+}
+func (e EventSessionNicks) eid() int64 {
+	return e.Eid
+}
+func (e EventSessionNicks) isState() bool {
 	return true
 }
 
@@ -175,6 +190,8 @@ type (
 		cantalk bool
 		is0	bool
 		isChan	bool
+		nicks		[]string	// nicks joined in channel.  in case of query, this is a single nick.
+		newnicks	[]string	// list of nicks gathered from "names" output, until we get "namesdone"
 		c       *Connection
 	}
 
@@ -372,7 +389,7 @@ func srv() {
 	}
 
 	sessions := map[int64]*Session{
-		int64(0): {int64(0), "0", false, true, false, nil},
+		int64(0): {int64(0), "0", false, true, false, []string{}, []string{}, nil},
 	}
 
 	makeInitEvents := func() []Event {
@@ -383,13 +400,13 @@ func srv() {
 				continue
 			}
 			if s.is0 && s.c != nil {
-				nick := "a gopher"
+				nick := "gowebirc"
 				if s.c.ic != nil {
 					nick = s.c.ic.Nick
 				}
 				l = append(l, EventCon{"con", 0, s.sid, s.c.status, nick, 0})
 			}
-			l = append(l, EventSession{"session", 0, s.sid, s.name, s.s0sid(), s.isChan})
+			l = append(l, EventSession{"session", 0, s.sid, s.name, s.s0sid(), s.isChan, s.nicks})
 		}
 		return l
 	}
@@ -430,7 +447,7 @@ func srv() {
 	sessionAdd := func(s *Session) {
 		sessions[s.sid] = s
 		fmt.Println("session added", s)
-		eventAdd(EventSession{"session", eidNext(), s.sid, s.name, s.s0sid(), s.isChan})
+		eventAdd(EventSession{"session", eidNext(), s.sid, s.name, s.s0sid(), s.isChan, s.nicks})
 		if s.c != nil {
 			s.c.sessions[irc.Lower(s.name)] = s
 		}
@@ -439,7 +456,7 @@ func srv() {
 	sessionEnsure := func(c *Connection, name string) *Session {
 		s, ok := c.sessions[irc.Lower(name)]
 		if !ok {
-			s = &Session{sidNext(), name, true, false, irc.IsChannel(name), c}
+			s = &Session{sidNext(), name, true, false, irc.IsChannel(name), []string{}, []string{}, c}
 			sessionAdd(s)
 		}
 		return s
@@ -448,6 +465,22 @@ func srv() {
 	sessionStatus := func(ss *Session, s string) {
 		fmt.Println("session status", ss, s)
 		eventAdd(EventStatus{"status", eidNext(), ss.sid, int64(0), now(), s})
+	}
+
+	sessionRemoveNick := func(s *Session, nick string) {
+		eventAdd(EventSessionNicks{"sessionnicks", eidNext(), s.sid, false, []string{nick}, []string{}})
+		for i, n := range s.nicks {
+			if irc.Lower(n) == nick {
+				s.nicks[i] = s.nicks[len(s.nicks)-1]
+				s.nicks = s.nicks[:len(s.nicks)-1]
+				break
+			}
+		}
+	}
+
+	sessionAddNick := func(s *Session, nick string) {
+		eventAdd(EventSessionNicks{"sessionnicks", eidNext(), s.sid, false, []string{}, []string{nick}})
+		s.nicks = append(s.nicks, nick)
 	}
 
 	status := func(c *Connection, s string) {
@@ -537,15 +570,24 @@ func srv() {
 			mm := r.r
 			switch m := mm.(type) {
 			case irc.RNick:
+				for _, xs := range r.c.sessions {
+					for xi, xnick := range xs.nicks {
+						if irc.Lower(xnick) == r.c.ic.Lnick {
+							xs.nicks[xi] = m.Name
+							eventAdd(EventSessionNicks{"sessionnicks", eidNext(), xs.sid, false, []string{xnick}, []string{m.Name}})
+						}
+					}
+				}
+
 				if r.c.ic.IsSelf(m.From.Nick) {
 					r.c.ic.SetNick(m.Name)
 					statusAll(r.c, fmt.Sprintf("you (%s) are now know as %s", m.From.Text(), m.Name))
 					r.c.nick = m.Name
 					eventAdd(EventCon{"con", eidNext(), r.c.s0.sid, r.c.status, m.Name, 0})
 				} else {
-					// xxx figure out the sessions m.From.Nick is active in...
-					status(r.c, fmt.Sprintf("%s (%s) is now known as %s", m.From.Nick, m.From.Text(), m.Name))
 					lnick := irc.Lower(m.From.Nick)
+
+					status(r.c, fmt.Sprintf("%s (%s) is now known as %s", m.From.Nick, m.From.Text(), m.Name))
 					for name, ss := range r.c.sessions {
 						if lnick == name {
 							eventAdd(EventSessionname{"sessionname", eidNext(), ss.sid, m.From.Nick})
@@ -586,11 +628,11 @@ func srv() {
 			case irc.RJoin:
 				ss := sessionEnsure(r.c, m.Where)
 				sessionStatus(ss, fmt.Sprintf("%s (%s) joined", m.From.Nick, m.From.Text()))
-				// xxx update list of joined users
+				sessionAddNick(ss, m.From.Nick)
 			case irc.RPart:
 				ss := sessionEnsure(r.c, m.Where)
 				sessionStatus(ss, fmt.Sprintf("%s (%s) left: %s", m.From.Nick, m.From.Text(), m.Msg))
-				// xxx update list of joined users
+				sessionRemoveNick(ss, m.From.Nick)
 			case irc.RTopic:
 				ss := sessionEnsure(r.c, m.Where)
 				sessionStatus(ss, fmt.Sprintf("%s (%s) set new topic: %s", m.From.Nick, m.From.Text(), m.Msg))
@@ -634,10 +676,11 @@ func srv() {
 			case irc.RKick:
 				s := sessionEnsure(r.c, m.Where)
 				who := irc.Lower(m.Who)
-				// xxx accounting for user
 				if who == r.c.ic.Lnick {
 					sessionStatus(s, fmt.Sprintf("you have been kicked by %s (%s): %s", m.From.Nick, m.From.Text(), m.Msg))
+					// xxx mark as dead?
 				} else {
+					sessionRemoveNick(s, m.Who)
 					sessionStatus(s, fmt.Sprintf("%s has been kicked by %s (%s): %s", m.Who, m.From.Nick, m.From.Text(), m.Msg))
 				}
 			case irc.RInvite:
@@ -664,6 +707,7 @@ func srv() {
 			case irc.RReplytext:
 				msg := strings.Join(m.Params, " ")
 				cmd, _ := strconv.Atoi(m.Cmd)
+				s := r.c.sessions[irc.Lower(m.Where)]
 				switch cmd {
 				case irc.RPLwelcome:
 					// xxx status now connected...
@@ -676,9 +720,29 @@ func srv() {
 					msg = "topic set by: "+msg
 				case irc.RPLinviting:
 					msg = "inviting: "+msg
-				case irc.RPLnames, irc.RPLnamesdone:
-					// xxx handle names
-					msg = "names/namesdone: "+msg
+				case irc.RPLnames:
+					users := []string{}
+					if len(m.Params) == 3 {
+						s = r.c.sessions[irc.Lower(m.Params[1])]
+						for _, nick := range strings.Split(m.Params[2], " ") {
+							name := nick
+							if strings.HasPrefix(nick, "@") || strings.HasPrefix(nick, "+") {
+								nick = nick[:1]
+							}
+							if s != nil {
+								s.newnicks = append(s.newnicks, nick)
+							}
+							users = append(users, name)
+						}
+					}
+					msg = "names: "+strings.Join(users, " ")
+				case irc.RPLnamesdone:
+					if s != nil {
+						eventAdd(EventSessionNicks{"sessionnicks", eidNext(), s.sid, true, []string{}, s.newnicks})
+						s.nicks = s.newnicks
+						s.newnicks = []string{}
+					}
+					msg = "end of names"
 				case irc.RPLaway:
 					msg = "away: "+msg
 					s := r.c.sessions[irc.Lower(m.Where)]
@@ -693,7 +757,6 @@ func srv() {
 				case irc.RPLchannelmodechanged:
 					msg = "mode changd "+msg
 				}
-				s := r.c.sessions[irc.Lower(m.Where)]
 				if s == nil {
 					s = r.c.s0
 				}
@@ -771,13 +834,13 @@ func srv() {
 				if err != nil {
 					cname = toks[0]
 				}
-				ns := &Session{sidNext(), cname, false, true, false, nil}
+				ns := &Session{sidNext(), cname, false, true, false, []string{}, []string{}, nil}
 				c := &Connection{sessions: make(map[string]*Session), s0: ns, status: "connecting", addr: addr, nick: nick}
 				ns.c = c
 				c.sessions[irc.Lower(ns.name)] = ns
 
 				eventAdd(EventCon{"con", eidNext(), ns.sid, "connecting", nick, 0})
-				sessionAdd(ns);
+				sessionAdd(ns)
 				go newIrc(addr, nick, ns, c)
 
 			case "reconnect":
